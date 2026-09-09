@@ -6,6 +6,10 @@ import {
 }
 
 // Values
+pub fn negotiate(String, Array[Representation]) -> Result[Negotiation, ParseError]
+
+pub fn negotiate_ranges(Array[MediaRange], Array[Representation]) -> Negotiation
+
 pub fn parse_accept(String) -> Result[Array[MediaRange], ParseError]
 
 pub fn parse_media_type(String) -> Result[MediaType, ParseError]
@@ -41,11 +45,14 @@ pub(all) struct MediaType {
   subtype : String
   parameters : Array[Parameter]
 } derive(Eq, @debug.Debug)
+pub fn MediaType::to_string(Self) -> String
 
 pub(all) struct Negotiation {
   selected : Representation?
   candidates : Array[Candidate]
 } derive(Eq, @debug.Debug)
+pub fn Negotiation::selected_id(Self) -> String?
+pub fn Negotiation::summary(Self) -> String
 
 pub(all) struct Parameter {
   name : String
@@ -67,6 +74,7 @@ pub(all) struct Representation {
   id : String
   media_type : MediaType
 } derive(Eq, @debug.Debug)
+pub fn Representation::parse(String, String) -> Result[Self, ParseError]
 
 // Type aliases
 

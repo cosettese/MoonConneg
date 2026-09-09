@@ -15,7 +15,7 @@ framework adapters stay outside the core package.
    extensions and do not constrain a representation.
 5. Parse errors carry a character offset and describe the expected grammar.
 
-## Planned selection pipeline
+## Selection pipeline
 
 1. Parse and validate the client preference fields.
 2. Find every matching media range for each available representation.
@@ -23,3 +23,8 @@ framework adapters stay outside the core package.
 4. Rank acceptable representations by quality, specificity, parameter count,
    client order, and finally server order.
 5. Return both the winner and the scored candidates for diagnostics.
+
+The governing media range is chosen by specificity and matching parameter
+count before its q-value is applied. This is important for an explicit exact
+`q=0`: a broader positive wildcard must not silently make that representation
+acceptable again.
