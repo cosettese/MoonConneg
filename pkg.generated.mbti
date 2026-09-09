@@ -1,0 +1,73 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "cosettese/moonconneg"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn parse_accept(String) -> Result[Array[MediaRange], ParseError]
+
+pub fn parse_media_type(String) -> Result[MediaType, ParseError]
+
+pub fn quality_text(Int) -> String
+
+// Errors
+
+// Types and methods
+pub(all) struct Candidate {
+  id : String
+  media_type : String
+  acceptable : Bool
+  quality : Int
+  specificity : Int
+  matched_parameters : Int
+  client_order : Int
+  server_order : Int
+  explanation : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct MediaRange {
+  type_ : String
+  subtype : String
+  parameters : Array[Parameter]
+  quality : Int
+  extensions : Array[Parameter]
+  order : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct MediaType {
+  type_ : String
+  subtype : String
+  parameters : Array[Parameter]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Negotiation {
+  selected : Representation?
+  candidates : Array[Candidate]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Parameter {
+  name : String
+  value : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ParseError {
+  EmptyInput
+  UnexpectedEnd(Int, String)
+  UnexpectedCharacter(Int, Char, String)
+  InvalidToken(Int, String)
+  InvalidWildcard(Int)
+  InvalidQuality(Int, String)
+  DuplicateParameter(Int, String)
+} derive(Eq, @debug.Debug)
+pub fn ParseError::message(Self) -> String
+
+pub(all) struct Representation {
+  id : String
+  media_type : MediaType
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
