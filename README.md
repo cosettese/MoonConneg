@@ -29,9 +29,10 @@ moon check --deny-warn
 moon test --deny-warn
 ```
 
-The next milestone will expand negotiation beyond media types with
-`Accept-Encoding` and `Accept-Language`, while keeping each field policy in a
-separate package boundary.
+The next milestone will combine media type, encoding, and language preferences
+into one deterministic representation decision. Parsing for additional fields
+will support that policy engine rather than become a collection of unrelated
+header parsers.
 
 ## Project position
 
@@ -39,6 +40,9 @@ The project is an original MoonBit implementation guided by the HTTP semantics
 and field syntax specifications. It does not copy another implementation. The
 scope is deliberately framework-neutral: it selects representations but does
 not open sockets, read files, or send responses.
+
+See [ECOSYSTEM.md](ECOSYSTEM.md) for the public MoonBit projects checked for
+overlap and the independent contribution MoonConneg intends to maintain.
 
 ## License
 
