@@ -50,3 +50,16 @@ ranges govern before broader ranges, so `en-US;q=0` can reject `en-US` even when
 `en;q=1` is present. The wildcard only governs languages without a more
 specific matching range. A missing field accepts every available language; a
 present empty field contains no acceptable ranges under the strict core policy.
+
+## Unified variant policy
+
+A variant contains a media type, content coding, and language tag. It is
+acceptable only when all three axis-specific policies accept it. Overall
+quality is the product of the three integer-thousandth qvalues, which keeps the
+calculation deterministic and gives every dimension influence over the result.
+
+HTTP does not mandate how a server combines independent negotiation dimensions.
+MoonConneg therefore documents its fixed tie-breaking policy explicitly: after
+combined quality, compare media, language, and encoding quality; then compare
+specificity and client order in the same axis order; finally use server order.
+The decision retains each axis candidate so applications can audit the result.

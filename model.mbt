@@ -108,6 +108,35 @@ pub(all) struct LanguageNegotiation {
 } derive(Eq, Debug)
 
 ///|
+/// One complete server representation across all negotiated dimensions.
+pub(all) struct Variant {
+  id : String
+  media_type : MediaType
+  encoding : String
+  language : String
+} derive(Eq, Debug)
+
+///|
+/// The three-axis score and explanation assigned to one variant.
+pub(all) struct VariantCandidate {
+  id : String
+  acceptable : Bool
+  combined_quality : Int
+  media : Candidate
+  encoding : EncodingCandidate
+  language : LanguageCandidate
+  server_order : Int
+  explanation : String
+} derive(Eq, Debug)
+
+///|
+/// A deterministic decision across media type, encoding, and language.
+pub(all) struct VariantNegotiation {
+  selected : Variant?
+  candidates : Array[VariantCandidate]
+} derive(Eq, Debug)
+
+///|
 /// Source-aware diagnostics for parsed content negotiation fields.
 pub(all) enum ParseError {
   EmptyInput

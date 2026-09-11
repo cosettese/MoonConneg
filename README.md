@@ -25,6 +25,8 @@ The current core provides:
   and the implicit `identity` fallback;
 - `Accept-Language` parsing and deterministic RFC 4647 Basic Filtering with
   case-insensitive subtag matching, specific refusals, and wildcard fallback;
+- unified selection across media type, encoding, and language, with a combined
+  quality score and per-axis explanations for every server variant;
 - portable behavior across MoonBit's supported backends, without FFI.
 
 Run the current verification:
@@ -34,9 +36,31 @@ moon check --deny-warn
 moon test --deny-warn
 ```
 
-The next milestone will combine media type, encoding, and language into one
-deterministic representation decision instead of exposing the three dimensions
-as unrelated selectors.
+The next milestone will add configurable resource limits and framework adapter
+examples while preserving the dependency-free core.
+
+## Unified selection
+
+Use `identity` for an unencoded variant and pass `None` for an absent optional
+preference field:
+
+```moonbit
+let variants = [
+  @moonconneg.Variant::parse(
+    "json-en", "application/json", "gzip", "en-US",
+  ).unwrap(),
+  @moonconneg.Variant::parse(
+    "html-fr", "text/html", "identity", "fr",
+  ).unwrap(),
+]
+let decision = @moonconneg.negotiate_variants(
+  "application/json, text/html;q=0.8",
+  Some("gzip, identity;q=0.5"),
+  Some("fr, en;q=0.8"),
+  variants,
+).unwrap()
+println(decision.summary())
+```
 
 ## Project position
 

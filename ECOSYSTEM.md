@@ -28,8 +28,8 @@ responsibilities:
 - rank candidates deterministically, including client and server order as
   explicit final tie-breakers;
 - return candidate-level reasons suitable for logs, tests, and debugging;
-- eventually combine media type, content encoding, and language preferences in
-  one decision instead of exposing unrelated parsers.
+- combine media type, content encoding, and language preferences in one
+  decision instead of exposing unrelated parsers.
 
 MoonConneg does not contain code copied from the projects above and does not
 currently depend on them. If a future adapter or fixture is derived from

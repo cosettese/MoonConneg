@@ -14,6 +14,8 @@ pub fn negotiate_language(String?, Array[String]) -> Result[LanguageNegotiation,
 
 pub fn negotiate_ranges(Array[MediaRange], Array[Representation]) -> Negotiation
 
+pub fn negotiate_variants(String, String?, String?, Array[Variant]) -> Result[VariantNegotiation, ParseError]
+
 pub fn parse_accept(String) -> Result[Array[MediaRange], ParseError]
 
 pub fn parse_accept_encoding(String) -> Result[Array[EncodingPreference], ParseError]
@@ -133,6 +135,32 @@ pub(all) struct Representation {
   media_type : MediaType
 } derive(Eq, @debug.Debug)
 pub fn Representation::parse(String, String) -> Result[Self, ParseError]
+
+pub(all) struct Variant {
+  id : String
+  media_type : MediaType
+  encoding : String
+  language : String
+} derive(Eq, @debug.Debug)
+pub fn Variant::parse(String, String, String, String) -> Result[Self, ParseError]
+
+pub(all) struct VariantCandidate {
+  id : String
+  acceptable : Bool
+  combined_quality : Int
+  media : Candidate
+  encoding : EncodingCandidate
+  language : LanguageCandidate
+  server_order : Int
+  explanation : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct VariantNegotiation {
+  selected : Variant?
+  candidates : Array[VariantCandidate]
+} derive(Eq, @debug.Debug)
+pub fn VariantNegotiation::selected_id(Self) -> String?
+pub fn VariantNegotiation::summary(Self) -> String
 
 // Type aliases
 
