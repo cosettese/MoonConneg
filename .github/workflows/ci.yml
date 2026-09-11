@@ -2,23 +2,66 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+  quality:
+    name: Format, check, and test
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - name: Install MoonBit
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up MoonBit
         uses: hustcer/setup-moonbit@v1
-      - name: Check all targets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Show toolchain version
+        run: moon version --all
+
+      - name: Verify formatting
         run: |
-          moon version --all
-          moon check --target all --deny-warn
-          moon test --target all --deny-warn
-          moon info
           moon fmt
           git diff --exit-code
+
+      - name: Run strict checks
+        run: moon check --deny-warn
+
+      - name: Run tests
+        run: moon test --deny-warn
+
+      - name: Verify generated package interface
+        run: |
+          moon info
+          git diff --exit-code
+
+  portability:
+    name: Test all targets on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up MoonBit
+        uses: hustcer/setup-moonbit@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check all targets
+        run: moon check --target all --deny-warn
+
+      - name: Test all targets
+        run: moon test --target all --deny-warn

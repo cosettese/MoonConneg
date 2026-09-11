@@ -1,5 +1,7 @@
 # MoonConneg
 
+[![CI](https://github.com/cosettese/MoonConneg/actions/workflows/ci.yml/badge.svg)](https://github.com/cosettese/MoonConneg/actions/workflows/ci.yml)
+
 MoonConneg is a pure MoonBit core for deterministic, explainable HTTP content
 negotiation. It is intended for web frameworks, API gateways, static servers,
 and test tools that need one reusable implementation instead of ad-hoc header
@@ -38,8 +40,12 @@ moon check --deny-warn
 moon test --deny-warn
 ```
 
-The next milestone will add framework adapter examples and continuous
-integration while preserving the dependency-free core.
+The next milestone will add framework adapter examples while preserving the
+dependency-free core.
+
+GitHub Actions enforces formatting, strict checks, generated-interface
+consistency, and all-target tests on Linux, macOS, and Windows for every push to
+`main` and every pull request.
 
 ## Unified selection
 
