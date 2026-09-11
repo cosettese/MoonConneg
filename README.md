@@ -40,12 +40,27 @@ moon check --deny-warn
 moon test --deny-warn
 ```
 
-The next milestone will add framework adapter examples while preserving the
-dependency-free core.
+The next milestone will add more framework adapter patterns while preserving
+the dependency-free core.
 
 GitHub Actions enforces formatting, strict checks, generated-interface
 consistency, and all-target tests on Linux, macOS, and Windows for every push to
 `main` and every pull request.
+
+## Runnable HTTP adapter example
+
+Run the dependency-free example to see request preference fields translated
+into response metadata and an explainable selection report:
+
+```bash
+moon run cmd/http_example
+```
+
+The adapter demonstrates the three response paths expected by an HTTP
+integration: malformed fields become `400 Bad Request`, a valid request with no
+acceptable variant becomes `406 Not Acceptable`, and a selected variant becomes
+`200 OK` with representation and `Vary` headers. A real framework adapter can
+reuse the same branching while constructing its native response object.
 
 ## Unified selection
 
