@@ -137,6 +137,19 @@ pub(all) struct VariantNegotiation {
 } derive(Eq, Debug)
 
 ///|
+/// Header-ready metadata for a selected complete representation.
+///
+/// `content_encoding` is absent for the identity coding because HTTP responses
+/// normally omit Content-Encoding when no transformation was applied.
+pub(all) struct ResponseMetadata {
+  variant_id : String
+  content_type : String
+  content_encoding : String?
+  content_language : String
+  vary : String
+} derive(Eq, Debug)
+
+///|
 /// Resource limits applied before or during parsing and selection.
 pub(all) struct Limits {
   max_field_chars : Int

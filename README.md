@@ -29,6 +29,8 @@ The current core provides:
   case-insensitive subtag matching, specific refusals, and wildcard fallback;
 - unified selection across media type, encoding, and language, with a combined
   quality score and per-axis explanations for every server variant;
+- header-ready `ResponseMetadata` for direct framework response construction,
+  with identity encoding omission and the corresponding `Vary` value;
 - finite default limits for field length, list items, parameters, and available
   candidates, plus `*_with_limits` entry points for deployment-specific bounds;
 - portable behavior across MoonBit's supported backends, without FFI.
@@ -60,7 +62,8 @@ The adapter demonstrates the three response paths expected by an HTTP
 integration: malformed fields become `400 Bad Request`, a valid request with no
 acceptable variant becomes `406 Not Acceptable`, and a selected variant becomes
 `200 OK` with representation and `Vary` headers. A real framework adapter can
-reuse the same branching while constructing its native response object.
+reuse the same branching and `response_metadata()` while constructing its
+native response object.
 
 ## Unified selection
 

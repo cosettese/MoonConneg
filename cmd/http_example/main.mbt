@@ -32,26 +32,31 @@ fn render_response(
     Err(error) => return Err(error)
     Ok(value) => value
   }
-  match decision.selected {
+  match decision.response_metadata() {
     None =>
       Ok(
         "HTTP/1.1 406 Not Acceptable\nVary: Accept, Accept-Encoding, Accept-Language",
       )
-    Some(variant) => {
+    Some(metadata) => {
       let out = StringBuilder()
       out.write_string("HTTP/1.1 200 OK\nContent-Type: ")
-      out.write_string(variant.media_type.to_string())
+      out.write_string(metadata.content_type)
       out.write_char('\n')
-      if variant.encoding != "identity" {
-        out.write_string("Content-Encoding: ")
-        out.write_string(variant.encoding)
-        out.write_char('\n')
+      match metadata.content_encoding {
+        None => ()
+        Some(encoding) => {
+          out.write_string("Content-Encoding: ")
+          out.write_string(encoding)
+          out.write_char('\n')
+        }
       }
       out.write_string("Content-Language: ")
-      out.write_string(variant.language)
-      out.write_string("\nVary: Accept, Accept-Encoding, Accept-Language\n\n")
+      out.write_string(metadata.content_language)
+      out.write_string("\nVary: ")
+      out.write_string(metadata.vary)
+      out.write_string("\n\n")
       out.write_string("selected asset: ")
-      out.write_string(variant.id)
+      out.write_string(metadata.variant_id)
       out.write_string("\n\n")
       out.write_string(decision.summary())
       Ok(out.to_string())

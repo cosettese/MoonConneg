@@ -162,6 +162,14 @@ pub(all) struct Representation {
 } derive(Eq, @debug.Debug)
 pub fn Representation::parse(String, String) -> Result[Self, ParseError]
 
+pub(all) struct ResponseMetadata {
+  variant_id : String
+  content_type : String
+  content_encoding : String?
+  content_language : String
+  vary : String
+} derive(Eq, @debug.Debug)
+
 pub(all) struct Variant {
   id : String
   media_type : MediaType
@@ -185,6 +193,7 @@ pub(all) struct VariantNegotiation {
   selected : Variant?
   candidates : Array[VariantCandidate]
 } derive(Eq, @debug.Debug)
+pub fn VariantNegotiation::response_metadata(Self) -> ResponseMetadata?
 pub fn VariantNegotiation::selected_id(Self) -> String?
 pub fn VariantNegotiation::summary(Self) -> String
 
