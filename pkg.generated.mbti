@@ -18,6 +18,10 @@ pub fn negotiate_language_with_limits(String?, Array[String], Limits) -> Result[
 
 pub fn negotiate_ranges(Array[MediaRange], Array[Representation]) -> Negotiation
 
+pub fn negotiate_request(RequestPreferences, Array[Variant]) -> Result[VariantNegotiation, ParseError]
+
+pub fn negotiate_request_with_limits(RequestPreferences, Array[Variant], Limits) -> Result[VariantNegotiation, ParseError]
+
 pub fn negotiate_variants(String, String?, String?, Array[Variant]) -> Result[VariantNegotiation, ParseError]
 
 pub fn negotiate_variants_with_limits(String, String?, String?, Array[Variant], Limits) -> Result[VariantNegotiation, ParseError]
@@ -161,6 +165,13 @@ pub(all) struct Representation {
   media_type : MediaType
 } derive(Eq, @debug.Debug)
 pub fn Representation::parse(String, String) -> Result[Self, ParseError]
+
+pub(all) struct RequestPreferences {
+  accept : String?
+  accept_encoding : String?
+  accept_language : String?
+} derive(Eq, @debug.Debug)
+pub fn RequestPreferences::default() -> Self
 
 pub(all) struct ResponseMetadata {
   variant_id : String

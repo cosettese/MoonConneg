@@ -150,6 +150,17 @@ pub(all) struct ResponseMetadata {
 } derive(Eq, Debug)
 
 ///|
+/// Optional content negotiation fields extracted from one HTTP request.
+///
+/// `None` means the field was absent. This distinction matters for encoding
+/// and language negotiation and lets adapters preserve transport semantics.
+pub(all) struct RequestPreferences {
+  accept : String?
+  accept_encoding : String?
+  accept_language : String?
+} derive(Eq, Debug)
+
+///|
 /// Resource limits applied before or during parsing and selection.
 pub(all) struct Limits {
   max_field_chars : Int

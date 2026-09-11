@@ -31,6 +31,8 @@ The current core provides:
   quality score and per-axis explanations for every server variant;
 - header-ready `ResponseMetadata` for direct framework response construction,
   with identity encoding omission and the corresponding `Vary` value;
+- typed `RequestPreferences` that preserves absent-field semantics for web
+  framework and gateway adapters;
 - finite default limits for field length, list items, parameters, and available
   candidates, plus `*_with_limits` entry points for deployment-specific bounds;
 - portable behavior across MoonBit's supported backends, without FFI.
@@ -63,7 +65,9 @@ integration: malformed fields become `400 Bad Request`, a valid request with no
 acceptable variant becomes `406 Not Acceptable`, and a selected variant becomes
 `200 OK` with representation and `Vary` headers. A real framework adapter can
 reuse the same branching and `response_metadata()` while constructing its
-native response object.
+native response object. `negotiate_request()` accepts a `RequestPreferences`
+record directly, so adapters do not need placeholder strings for missing
+fields.
 
 ## Unified selection
 

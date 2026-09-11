@@ -18,17 +18,10 @@ fn available_variants() -> Array[@moonconneg.Variant] {
 /// pure decision into its own response type. This example renders a response
 /// head so the integration remains executable without a networking dependency.
 fn render_response(
-  accept : String,
-  accept_encoding : String?,
-  accept_language : String?,
+  preferences : @moonconneg.RequestPreferences,
 ) -> Result[String, @moonconneg.ParseError] {
   let decision = match
-    @moonconneg.negotiate_variants(
-      accept,
-      accept_encoding,
-      accept_language,
-      available_variants(),
-    ) {
+    @moonconneg.negotiate_request(preferences, available_variants()) {
     Err(error) => return Err(error)
     Ok(value) => value
   }
@@ -67,11 +60,11 @@ fn render_response(
 ///|
 fn main {
   match
-    render_response(
-      "application/json, text/html;q=0.7",
-      Some("br;q=0.2, gzip;q=1, identity;q=0.5"),
-      Some("fr;q=0.6, en-US;q=1"),
-    ) {
+    render_response({
+      accept: Some("application/json, text/html;q=0.7"),
+      accept_encoding: Some("br;q=0.2, gzip;q=1, identity;q=0.5"),
+      accept_language: Some("fr;q=0.6, en-US;q=1"),
+    }) {
     Err(error) => {
       println("HTTP/1.1 400 Bad Request")
       println("")
