@@ -242,7 +242,26 @@ pub fn negotiate(
   accept : String,
   available : Array[Representation],
 ) -> Result[Negotiation, ParseError] {
-  match parse_accept(accept) {
+  negotiate_with_limits(accept, available, Limits::default())
+}
+
+///|
+/// Parse an Accept field and choose a representation with explicit limits.
+pub fn negotiate_with_limits(
+  accept : String,
+  available : Array[Representation],
+  limits : Limits,
+) -> Result[Negotiation, ParseError] {
+  match
+    check_available_limit(
+      available.length(),
+      limits,
+      "available media representations",
+    ) {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
+  match parse_accept_with_limits(accept, limits) {
     Err(error) => Err(error)
     Ok(ranges) => Ok(negotiate_ranges(ranges, available))
   }

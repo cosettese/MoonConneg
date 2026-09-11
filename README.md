@@ -27,6 +27,8 @@ The current core provides:
   case-insensitive subtag matching, specific refusals, and wildcard fallback;
 - unified selection across media type, encoding, and language, with a combined
   quality score and per-axis explanations for every server variant;
+- finite default limits for field length, list items, parameters, and available
+  candidates, plus `*_with_limits` entry points for deployment-specific bounds;
 - portable behavior across MoonBit's supported backends, without FFI.
 
 Run the current verification:
@@ -36,8 +38,8 @@ moon check --deny-warn
 moon test --deny-warn
 ```
 
-The next milestone will add configurable resource limits and framework adapter
-examples while preserving the dependency-free core.
+The next milestone will add framework adapter examples and continuous
+integration while preserving the dependency-free core.
 
 ## Unified selection
 
@@ -61,6 +63,11 @@ let decision = @moonconneg.negotiate_variants(
 ).unwrap()
 println(decision.summary())
 ```
+
+All convenience entry points apply `Limits::default()`. Applications with
+tighter or trusted workloads can construct `Limits` and call the corresponding
+`*_with_limits` function. `Limits::unlimited()` is intended primarily for tests
+and controlled inputs.
 
 ## Project position
 

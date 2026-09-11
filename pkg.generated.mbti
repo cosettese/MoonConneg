@@ -10,19 +10,35 @@ pub fn negotiate(String, Array[Representation]) -> Result[Negotiation, ParseErro
 
 pub fn negotiate_encoding(String?, Array[String]) -> Result[EncodingNegotiation, ParseError]
 
+pub fn negotiate_encoding_with_limits(String?, Array[String], Limits) -> Result[EncodingNegotiation, ParseError]
+
 pub fn negotiate_language(String?, Array[String]) -> Result[LanguageNegotiation, ParseError]
+
+pub fn negotiate_language_with_limits(String?, Array[String], Limits) -> Result[LanguageNegotiation, ParseError]
 
 pub fn negotiate_ranges(Array[MediaRange], Array[Representation]) -> Negotiation
 
 pub fn negotiate_variants(String, String?, String?, Array[Variant]) -> Result[VariantNegotiation, ParseError]
 
+pub fn negotiate_variants_with_limits(String, String?, String?, Array[Variant], Limits) -> Result[VariantNegotiation, ParseError]
+
+pub fn negotiate_with_limits(String, Array[Representation], Limits) -> Result[Negotiation, ParseError]
+
 pub fn parse_accept(String) -> Result[Array[MediaRange], ParseError]
 
 pub fn parse_accept_encoding(String) -> Result[Array[EncodingPreference], ParseError]
 
+pub fn parse_accept_encoding_with_limits(String, Limits) -> Result[Array[EncodingPreference], ParseError]
+
 pub fn parse_accept_language(String) -> Result[Array[LanguagePreference], ParseError]
 
+pub fn parse_accept_language_with_limits(String, Limits) -> Result[Array[LanguagePreference], ParseError]
+
+pub fn parse_accept_with_limits(String, Limits) -> Result[Array[MediaRange], ParseError]
+
 pub fn parse_media_type(String) -> Result[MediaType, ParseError]
+
+pub fn parse_media_type_with_limits(String, Limits) -> Result[MediaType, ParseError]
 
 pub fn quality_text(Int) -> String
 
@@ -88,6 +104,15 @@ pub(all) struct LanguagePreference {
   order : Int
 } derive(Eq, @debug.Debug)
 
+pub(all) struct Limits {
+  max_field_chars : Int
+  max_list_items : Int
+  max_parameters_per_item : Int
+  max_available : Int
+} derive(Eq, @debug.Debug)
+pub fn Limits::default() -> Self
+pub fn Limits::unlimited() -> Self
+
 pub(all) struct MediaRange {
   type_ : String
   subtype : String
@@ -127,6 +152,7 @@ pub(all) enum ParseError {
   InvalidQuality(Int, String)
   DuplicateParameter(Int, String)
   InvalidParameter(Int, String, String)
+  LimitExceeded(String, Int, Int)
 } derive(Eq, @debug.Debug)
 pub fn ParseError::message(Self) -> String
 

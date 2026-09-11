@@ -143,7 +143,34 @@ pub fn negotiate_variants(
   accept_language : String?,
   available : Array[Variant],
 ) -> Result[VariantNegotiation, ParseError] {
-  let media_ranges = match parse_accept(accept) {
+  negotiate_variants_with_limits(
+    accept,
+    accept_encoding,
+    accept_language,
+    available,
+    Limits::default(),
+  )
+}
+
+///|
+/// Select a complete representation with explicit resource limits.
+pub fn negotiate_variants_with_limits(
+  accept : String,
+  accept_encoding : String?,
+  accept_language : String?,
+  available : Array[Variant],
+  limits : Limits,
+) -> Result[VariantNegotiation, ParseError] {
+  match
+    check_available_limit(
+      available.length(),
+      limits,
+      "available representation variants",
+    ) {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
+  let media_ranges = match parse_accept_with_limits(accept, limits) {
     Err(error) => return Err(error)
     Ok(value) => value
   }
@@ -151,7 +178,7 @@ pub fn negotiate_variants(
     accept_encoding {
     None => ([], false, false)
     Some(value) =>
-      match parse_accept_encoding(value) {
+      match parse_accept_encoding_with_limits(value, limits) {
         Err(error) => return Err(error)
         Ok(parsed) => (parsed, true, parsed.length() == 0)
       }
@@ -159,7 +186,7 @@ pub fn negotiate_variants(
   let (language_preferences, language_header_present) = match accept_language {
     None => ([], false)
     Some(value) =>
-      match parse_accept_language(value) {
+      match parse_accept_language_with_limits(value, limits) {
         Err(error) => return Err(error)
         Ok(parsed) => (parsed, true)
       }

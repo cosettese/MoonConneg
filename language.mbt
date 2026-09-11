@@ -50,6 +50,19 @@ fn basic_language_specificity(
 pub fn parse_accept_language(
   input : String,
 ) -> Result[Array[LanguagePreference], ParseError] {
+  parse_accept_language_with_limits(input, Limits::default())
+}
+
+///|
+/// Parse an Accept-Language field with explicit resource limits.
+pub fn parse_accept_language_with_limits(
+  input : String,
+  limits : Limits,
+) -> Result[Array[LanguagePreference], ParseError] {
+  match check_field_limit(input, limits) {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
   let cursor = Cursor::new(input)
   cursor.skip_ows()
   if cursor.end() {
@@ -58,6 +71,10 @@ pub fn parse_accept_language(
   let preferences = []
   let mut order = 0
   while true {
+    match check_list_limit(order + 1, limits, "Accept-Language items") {
+      Err(error) => return Err(error)
+      Ok(_) => ()
+    }
     cursor.skip_ows()
     let range_offset = cursor.pos
     let range = match cursor.token("basic language range") {
@@ -71,12 +88,21 @@ pub fn parse_accept_language(
     }
     let mut quality = 1000
     let mut seen_quality = false
+    let mut parameter_count = 0
     while true {
       cursor.skip_ows()
       if cursor.peek() != Some(';') {
         break
       }
       cursor.pos = cursor.pos + 1
+      parameter_count = parameter_count + 1
+      match
+        check_parameter_limit(
+          parameter_count, limits, "Accept-Language parameters",
+        ) {
+        Err(error) => return Err(error)
+        Ok(_) => ()
+      }
       let (parameter, offset) = match cursor.parameter() {
         Ok(value) => value
         Err(error) => return Err(error)
@@ -277,10 +303,25 @@ pub fn negotiate_language(
   accept_language : String?,
   available : Array[String],
 ) -> Result[LanguageNegotiation, ParseError] {
+  negotiate_language_with_limits(accept_language, available, Limits::default())
+}
+
+///|
+/// Choose a language with explicit parsing and candidate limits.
+pub fn negotiate_language_with_limits(
+  accept_language : String?,
+  available : Array[String],
+  limits : Limits,
+) -> Result[LanguageNegotiation, ParseError] {
+  match
+    check_available_limit(available.length(), limits, "available language tags") {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
   let (preferences, header_present) = match accept_language {
     None => ([], false)
     Some(value) =>
-      match parse_accept_language(value) {
+      match parse_accept_language_with_limits(value, limits) {
         Err(error) => return Err(error)
         Ok(parsed) => (parsed, true)
       }

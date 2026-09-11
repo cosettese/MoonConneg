@@ -7,6 +7,19 @@
 pub fn parse_accept_encoding(
   input : String,
 ) -> Result[Array[EncodingPreference], ParseError] {
+  parse_accept_encoding_with_limits(input, Limits::default())
+}
+
+///|
+/// Parse an Accept-Encoding field with explicit resource limits.
+pub fn parse_accept_encoding_with_limits(
+  input : String,
+  limits : Limits,
+) -> Result[Array[EncodingPreference], ParseError] {
+  match check_field_limit(input, limits) {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
   let cursor = Cursor::new(input)
   cursor.skip_ows()
   if cursor.end() {
@@ -15,6 +28,10 @@ pub fn parse_accept_encoding(
   let preferences = []
   let mut order = 0
   while true {
+    match check_list_limit(order + 1, limits, "Accept-Encoding items") {
+      Err(error) => return Err(error)
+      Ok(_) => ()
+    }
     cursor.skip_ows()
     let coding = match cursor.token("content coding") {
       Ok(value) => value.to_lower()
@@ -22,12 +39,21 @@ pub fn parse_accept_encoding(
     }
     let mut quality = 1000
     let mut seen_quality = false
+    let mut parameter_count = 0
     while true {
       cursor.skip_ows()
       if cursor.peek() != Some(';') {
         break
       }
       cursor.pos = cursor.pos + 1
+      parameter_count = parameter_count + 1
+      match
+        check_parameter_limit(
+          parameter_count, limits, "Accept-Encoding parameters",
+        ) {
+        Err(error) => return Err(error)
+        Ok(_) => ()
+      }
       let (parameter, offset) = match cursor.parameter() {
         Ok(value) => value
         Err(error) => return Err(error)
@@ -221,10 +247,29 @@ pub fn negotiate_encoding(
   accept_encoding : String?,
   available : Array[String],
 ) -> Result[EncodingNegotiation, ParseError] {
+  negotiate_encoding_with_limits(accept_encoding, available, Limits::default())
+}
+
+///|
+/// Choose a content coding with explicit parsing and candidate limits.
+pub fn negotiate_encoding_with_limits(
+  accept_encoding : String?,
+  available : Array[String],
+  limits : Limits,
+) -> Result[EncodingNegotiation, ParseError] {
+  match
+    check_available_limit(
+      available.length(),
+      limits,
+      "available content codings",
+    ) {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
   let (preferences, header_present, field_empty) = match accept_encoding {
     None => ([], false, false)
     Some(value) =>
-      match parse_accept_encoding(value) {
+      match parse_accept_encoding_with_limits(value, limits) {
         Err(error) => return Err(error)
         Ok(parsed) => (parsed, true, parsed.length() == 0)
       }

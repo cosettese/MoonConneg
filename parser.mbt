@@ -217,6 +217,19 @@ fn parse_quality(value : String, offset : Int) -> Result[Int, ParseError] {
 ///|
 /// Parse a concrete Content-Type value.
 pub fn parse_media_type(input : String) -> Result[MediaType, ParseError] {
+  parse_media_type_with_limits(input, Limits::default())
+}
+
+///|
+/// Parse a concrete Content-Type value with explicit resource limits.
+pub fn parse_media_type_with_limits(
+  input : String,
+  limits : Limits,
+) -> Result[MediaType, ParseError] {
+  match check_field_limit(input, limits) {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
   let cursor = Cursor::new(input)
   cursor.skip_ows()
   if cursor.end() {
@@ -248,6 +261,15 @@ pub fn parse_media_type(input : String) -> Result[MediaType, ParseError] {
       Err(error) => return Err(error)
       Ok(_) => ()
     }
+    match
+      check_parameter_limit(
+        parameters.length() + 1,
+        limits,
+        "Content-Type parameters",
+      ) {
+      Err(error) => return Err(error)
+      Ok(_) => ()
+    }
     let (parameter, offset) = match cursor.parameter() {
       Ok(value) => value
       Err(error) => return Err(error)
@@ -263,9 +285,26 @@ pub fn parse_media_type(input : String) -> Result[MediaType, ParseError] {
 ///|
 /// Parse an Accept field into ordered media ranges.
 pub fn parse_accept(input : String) -> Result[Array[MediaRange], ParseError] {
+  parse_accept_with_limits(input, Limits::default())
+}
+
+///|
+/// Parse an Accept field with explicit resource limits.
+pub fn parse_accept_with_limits(
+  input : String,
+  limits : Limits,
+) -> Result[Array[MediaRange], ParseError] {
+  match check_field_limit(input, limits) {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
   let cursor = Cursor::new(input)
   cursor.skip_ows()
   if cursor.end() {
+    match check_list_limit(1, limits, "Accept media ranges") {
+      Err(error) => return Err(error)
+      Ok(_) => ()
+    }
     return Ok([
       {
         type_: "*",
@@ -280,6 +319,10 @@ pub fn parse_accept(input : String) -> Result[Array[MediaRange], ParseError] {
   let ranges = []
   let mut order = 0
   while true {
+    match check_list_limit(order + 1, limits, "Accept media ranges") {
+      Err(error) => return Err(error)
+      Ok(_) => ()
+    }
     cursor.skip_ows()
     let type_offset = cursor.pos
     let type_ = match cursor.token("media range type") {
@@ -301,11 +344,18 @@ pub fn parse_accept(input : String) -> Result[Array[MediaRange], ParseError] {
     let extensions = []
     let mut quality = 1000
     let mut seen_quality = false
+    let mut parameter_count = 0
     while true {
       cursor.skip_ows()
       match cursor.peek() {
         Some(';') => {
           cursor.pos = cursor.pos + 1
+          parameter_count = parameter_count + 1
+          match
+            check_parameter_limit(parameter_count, limits, "Accept parameters") {
+            Err(error) => return Err(error)
+            Ok(_) => ()
+          }
           let (parameter, offset) = match cursor.parameter() {
             Ok(value) => value
             Err(error) => return Err(error)

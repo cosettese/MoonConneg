@@ -137,6 +137,15 @@ pub(all) struct VariantNegotiation {
 } derive(Eq, Debug)
 
 ///|
+/// Resource limits applied before or during parsing and selection.
+pub(all) struct Limits {
+  max_field_chars : Int
+  max_list_items : Int
+  max_parameters_per_item : Int
+  max_available : Int
+} derive(Eq, Debug)
+
+///|
 /// Source-aware diagnostics for parsed content negotiation fields.
 pub(all) enum ParseError {
   EmptyInput
@@ -149,6 +158,7 @@ pub(all) enum ParseError {
   InvalidQuality(Int, String)
   DuplicateParameter(Int, String)
   InvalidParameter(Int, String, String)
+  LimitExceeded(String, Int, Int)
 } derive(Eq, Debug)
 
 ///|
@@ -173,6 +183,8 @@ pub fn ParseError::message(self : ParseError) -> String {
       "duplicate parameter '\{name}' at offset \{offset}"
     InvalidParameter(offset, name, context) =>
       "parameter '\{name}' is not allowed at offset \{offset} for \{context}"
+    LimitExceeded(resource, limit, actual) =>
+      "\{resource} limit exceeded: maximum \{limit}, got \{actual}"
   }
 }
 

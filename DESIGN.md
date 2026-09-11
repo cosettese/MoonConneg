@@ -63,3 +63,12 @@ MoonConneg therefore documents its fixed tie-breaking policy explicitly: after
 combined quality, compare media, language, and encoding quality; then compare
 specificity and client order in the same axis order; finally use server order.
 The decision retains each axis candidate so applications can audit the result.
+
+## Resource limits
+
+Public convenience APIs use finite defaults: 8192 characters per field, 128
+list items, 32 parameters per item, and 256 available server candidates.
+Limit-aware entry points reject excess work before allocating or scoring the
+next unit. Callers can supply tighter values for exposed services or use the
+unlimited preset for controlled tests. Limits count decoded MoonBit characters,
+not transport bytes; HTTP adapters remain responsible for wire-level limits.
