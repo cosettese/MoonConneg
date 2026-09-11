@@ -8,9 +8,13 @@ import {
 // Values
 pub fn negotiate(String, Array[Representation]) -> Result[Negotiation, ParseError]
 
+pub fn negotiate_encoding(String?, Array[String]) -> Result[EncodingNegotiation, ParseError]
+
 pub fn negotiate_ranges(Array[MediaRange], Array[Representation]) -> Negotiation
 
 pub fn parse_accept(String) -> Result[Array[MediaRange], ParseError]
+
+pub fn parse_accept_encoding(String) -> Result[Array[EncodingPreference], ParseError]
 
 pub fn parse_media_type(String) -> Result[MediaType, ParseError]
 
@@ -29,6 +33,29 @@ pub(all) struct Candidate {
   client_order : Int
   server_order : Int
   explanation : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct EncodingCandidate {
+  coding : String
+  acceptable : Bool
+  quality : Int
+  specificity : Int
+  client_order : Int
+  server_order : Int
+  explanation : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct EncodingNegotiation {
+  selected : String?
+  candidates : Array[EncodingCandidate]
+} derive(Eq, @debug.Debug)
+pub fn EncodingNegotiation::selected_coding(Self) -> String?
+pub fn EncodingNegotiation::summary(Self) -> String
+
+pub(all) struct EncodingPreference {
+  coding : String
+  quality : Int
+  order : Int
 } derive(Eq, @debug.Debug)
 
 pub(all) struct MediaRange {
@@ -65,8 +92,10 @@ pub(all) enum ParseError {
   UnexpectedCharacter(Int, Char, String)
   InvalidToken(Int, String)
   InvalidWildcard(Int)
+  InvalidCoding(Int, String)
   InvalidQuality(Int, String)
   DuplicateParameter(Int, String)
+  InvalidParameter(Int, String, String)
 } derive(Eq, @debug.Debug)
 pub fn ParseError::message(Self) -> String
 

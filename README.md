@@ -7,7 +7,7 @@ splitting.
 
 ## Current capabilities
 
-The initial parser core provides:
+The current core provides:
 
 - concrete `Content-Type` parsing;
 - ordered `Accept` media-range parsing;
@@ -20,6 +20,9 @@ The initial parser core provides:
 - deterministic tie-breaking by quality, specificity, parameter count, client
   order, and server order;
 - explicit `q=0` refusal behavior and human-readable decision reports;
+- `Accept-Encoding` parsing and deterministic coding selection, including the
+  distinct semantics of an absent field, an empty field, wildcard exclusions,
+  and the implicit `identity` fallback;
 - portable behavior across MoonBit's supported backends, without FFI.
 
 Run the current verification:
@@ -29,10 +32,10 @@ moon check --deny-warn
 moon test --deny-warn
 ```
 
-The next milestone will combine media type, encoding, and language preferences
-into one deterministic representation decision. Parsing for additional fields
-will support that policy engine rather than become a collection of unrelated
-header parsers.
+The next milestone will add language preferences and then combine media type,
+encoding, and language into one deterministic representation decision. Parsing
+for additional fields supports that policy engine rather than becoming a
+collection of unrelated header parsers.
 
 ## Project position
 

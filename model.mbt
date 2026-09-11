@@ -53,15 +53,44 @@ pub(all) struct Negotiation {
 } derive(Eq, Debug)
 
 ///|
-/// Source-aware parse diagnostics for Content-Type and Accept fields.
+/// One ordered preference from an Accept-Encoding field.
+pub(all) struct EncodingPreference {
+  coding : String
+  quality : Int
+  order : Int
+} derive(Eq, Debug)
+
+///|
+/// The score and explanation assigned to one available content coding.
+pub(all) struct EncodingCandidate {
+  coding : String
+  acceptable : Bool
+  quality : Int
+  specificity : Int
+  client_order : Int
+  server_order : Int
+  explanation : String
+} derive(Eq, Debug)
+
+///|
+/// A complete deterministic Accept-Encoding decision.
+pub(all) struct EncodingNegotiation {
+  selected : String?
+  candidates : Array[EncodingCandidate]
+} derive(Eq, Debug)
+
+///|
+/// Source-aware diagnostics for parsed content negotiation fields.
 pub(all) enum ParseError {
   EmptyInput
   UnexpectedEnd(Int, String)
   UnexpectedCharacter(Int, Char, String)
   InvalidToken(Int, String)
   InvalidWildcard(Int)
+  InvalidCoding(Int, String)
   InvalidQuality(Int, String)
   DuplicateParameter(Int, String)
+  InvalidParameter(Int, String, String)
 } derive(Eq, Debug)
 
 ///|
@@ -76,10 +105,14 @@ pub fn ParseError::message(self : ParseError) -> String {
       "invalid or empty token at offset \{offset} for \{context}"
     InvalidWildcard(offset) =>
       "invalid wildcard at offset \{offset}; only */* and type/* are allowed"
+    InvalidCoding(offset, coding) =>
+      "invalid content coding '\{coding}' at offset \{offset}"
     InvalidQuality(offset, value) =>
       "invalid q value '\{value}' at offset \{offset}; expected 0..1 with at most three decimals"
     DuplicateParameter(offset, name) =>
       "duplicate parameter '\{name}' at offset \{offset}"
+    InvalidParameter(offset, name, context) =>
+      "parameter '\{name}' is not allowed at offset \{offset} for \{context}"
   }
 }
 
