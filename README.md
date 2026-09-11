@@ -23,6 +23,8 @@ The current core provides:
 - `Accept-Encoding` parsing and deterministic coding selection, including the
   distinct semantics of an absent field, an empty field, wildcard exclusions,
   and the implicit `identity` fallback;
+- `Accept-Language` parsing and deterministic RFC 4647 Basic Filtering with
+  case-insensitive subtag matching, specific refusals, and wildcard fallback;
 - portable behavior across MoonBit's supported backends, without FFI.
 
 Run the current verification:
@@ -32,10 +34,9 @@ moon check --deny-warn
 moon test --deny-warn
 ```
 
-The next milestone will add language preferences and then combine media type,
-encoding, and language into one deterministic representation decision. Parsing
-for additional fields supports that policy engine rather than becoming a
-collection of unrelated header parsers.
+The next milestone will combine media type, encoding, and language into one
+deterministic representation decision instead of exposing the three dimensions
+as unrelated selectors.
 
 ## Project position
 

@@ -10,11 +10,15 @@ pub fn negotiate(String, Array[Representation]) -> Result[Negotiation, ParseErro
 
 pub fn negotiate_encoding(String?, Array[String]) -> Result[EncodingNegotiation, ParseError]
 
+pub fn negotiate_language(String?, Array[String]) -> Result[LanguageNegotiation, ParseError]
+
 pub fn negotiate_ranges(Array[MediaRange], Array[Representation]) -> Negotiation
 
 pub fn parse_accept(String) -> Result[Array[MediaRange], ParseError]
 
 pub fn parse_accept_encoding(String) -> Result[Array[EncodingPreference], ParseError]
+
+pub fn parse_accept_language(String) -> Result[Array[LanguagePreference], ParseError]
 
 pub fn parse_media_type(String) -> Result[MediaType, ParseError]
 
@@ -58,6 +62,30 @@ pub(all) struct EncodingPreference {
   order : Int
 } derive(Eq, @debug.Debug)
 
+pub(all) struct LanguageCandidate {
+  language : String
+  acceptable : Bool
+  quality : Int
+  specificity : Int
+  client_order : Int
+  server_order : Int
+  explanation : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct LanguageNegotiation {
+  selected : String?
+  candidates : Array[LanguageCandidate]
+} derive(Eq, @debug.Debug)
+pub fn LanguageNegotiation::selected_language(Self) -> String?
+pub fn LanguageNegotiation::summary(Self) -> String
+
+pub(all) struct LanguagePreference {
+  range : String
+  quality : Int
+  specificity : Int
+  order : Int
+} derive(Eq, @debug.Debug)
+
 pub(all) struct MediaRange {
   type_ : String
   subtype : String
@@ -93,6 +121,7 @@ pub(all) enum ParseError {
   InvalidToken(Int, String)
   InvalidWildcard(Int)
   InvalidCoding(Int, String)
+  InvalidLanguage(Int, String)
   InvalidQuality(Int, String)
   DuplicateParameter(Int, String)
   InvalidParameter(Int, String, String)

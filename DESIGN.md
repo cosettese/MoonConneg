@@ -40,3 +40,13 @@ has a lower quality or rejects the coding. Identity is acceptable by default,
 but `identity;q=0` or `*;q=0` without a more specific identity preference can
 exclude it. Candidates are ranked by quality, exactness, client order, and
 finally server order, and every candidate retains its reason for diagnostics.
+
+## Language policy
+
+Language negotiation uses RFC 4647 Basic Filtering. Comparisons are
+case-insensitive, and a non-wildcard range matches either an equal tag or a tag
+for which the range is a prefix ending at a hyphen boundary. More-specific
+ranges govern before broader ranges, so `en-US;q=0` can reject `en-US` even when
+`en;q=1` is present. The wildcard only governs languages without a more
+specific matching range. A missing field accepts every available language; a
+present empty field contains no acceptable ranges under the strict core policy.

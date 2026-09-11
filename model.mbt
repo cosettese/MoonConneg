@@ -80,6 +80,34 @@ pub(all) struct EncodingNegotiation {
 } derive(Eq, Debug)
 
 ///|
+/// One ordered preference from an Accept-Language field.
+pub(all) struct LanguagePreference {
+  range : String
+  quality : Int
+  specificity : Int
+  order : Int
+} derive(Eq, Debug)
+
+///|
+/// The score and explanation assigned to one available language tag.
+pub(all) struct LanguageCandidate {
+  language : String
+  acceptable : Bool
+  quality : Int
+  specificity : Int
+  client_order : Int
+  server_order : Int
+  explanation : String
+} derive(Eq, Debug)
+
+///|
+/// A complete deterministic Accept-Language decision.
+pub(all) struct LanguageNegotiation {
+  selected : String?
+  candidates : Array[LanguageCandidate]
+} derive(Eq, Debug)
+
+///|
 /// Source-aware diagnostics for parsed content negotiation fields.
 pub(all) enum ParseError {
   EmptyInput
@@ -88,6 +116,7 @@ pub(all) enum ParseError {
   InvalidToken(Int, String)
   InvalidWildcard(Int)
   InvalidCoding(Int, String)
+  InvalidLanguage(Int, String)
   InvalidQuality(Int, String)
   DuplicateParameter(Int, String)
   InvalidParameter(Int, String, String)
@@ -107,6 +136,8 @@ pub fn ParseError::message(self : ParseError) -> String {
       "invalid wildcard at offset \{offset}; only */* and type/* are allowed"
     InvalidCoding(offset, coding) =>
       "invalid content coding '\{coding}' at offset \{offset}"
+    InvalidLanguage(offset, language) =>
+      "invalid basic language range or tag '\{language}' at offset \{offset}"
     InvalidQuality(offset, value) =>
       "invalid q value '\{value}' at offset \{offset}; expected 0..1 with at most three decimals"
     DuplicateParameter(offset, name) =>
