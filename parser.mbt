@@ -283,6 +283,20 @@ pub fn parse_media_type_with_limits(
 }
 
 ///|
+fn default_accept_ranges() -> Array[MediaRange] {
+  [
+    {
+      type_: "*",
+      subtype: "*",
+      parameters: [],
+      quality: 1000,
+      extensions: [],
+      order: 0,
+    },
+  ]
+}
+
+///|
 /// Parse an Accept field into ordered media ranges.
 pub fn parse_accept(input : String) -> Result[Array[MediaRange], ParseError] {
   parse_accept_with_limits(input, Limits::default())
@@ -305,25 +319,29 @@ pub fn parse_accept_with_limits(
       Err(error) => return Err(error)
       Ok(_) => ()
     }
-    return Ok([
-      {
-        type_: "*",
-        subtype: "*",
-        parameters: [],
-        quality: 1000,
-        extensions: [],
-        order: 0,
-      },
-    ])
+    return Ok(default_accept_ranges())
   }
   let ranges = []
   let mut order = 0
+  let mut member_count = 1
+  match check_list_limit(member_count, limits, "Accept media ranges") {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
   while true {
-    match check_list_limit(order + 1, limits, "Accept media ranges") {
-      Err(error) => return Err(error)
-      Ok(_) => ()
-    }
     cursor.skip_ows()
+    if cursor.end() {
+      break
+    }
+    if cursor.peek() == Some(',') {
+      cursor.pos = cursor.pos + 1
+      member_count = member_count + 1
+      match check_list_limit(member_count, limits, "Accept media ranges") {
+        Err(error) => return Err(error)
+        Ok(_) => ()
+      }
+      continue
+    }
     let type_offset = cursor.pos
     let type_ = match cursor.token("media range type") {
       Ok(value) => value.to_lower()
@@ -390,14 +408,16 @@ pub fn parse_accept_with_limits(
     if cursor.end() {
       break
     }
-    match cursor.take_char(',', ", or end of input") {
-      Err(error) => return Err(error)
-      Ok(_) => ()
-    }
-    cursor.skip_ows()
-    if cursor.end() {
-      return Err(UnexpectedEnd(cursor.pos, "media range after comma"))
+    match cursor.peek() {
+      Some(',') => ()
+      Some(ch) =>
+        return Err(UnexpectedCharacter(cursor.pos, ch, ", or end of input"))
+      None => ()
     }
   }
-  Ok(ranges)
+  if ranges.length() == 0 {
+    Ok(default_accept_ranges())
+  } else {
+    Ok(ranges)
+  }
 }

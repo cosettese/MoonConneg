@@ -41,6 +41,23 @@ test "media range item limit is enforced" {
 }
 
 ///|
+test "ignored empty members still consume the list limit" {
+  let constrained = limits(100, 2, 8, 8)
+  assert_true(
+    @moonconneg.parse_accept_with_limits(",,text/plain", constrained)
+    is Err(@moonconneg.LimitExceeded(_, _, _)),
+  )
+  assert_true(
+    @moonconneg.parse_accept_encoding_with_limits(",,gzip", constrained)
+    is Err(@moonconneg.LimitExceeded(_, _, _)),
+  )
+  assert_true(
+    @moonconneg.parse_accept_language_with_limits(",,en", constrained)
+    is Err(@moonconneg.LimitExceeded(_, _, _)),
+  )
+}
+
+///|
 test "Content-Type parameter limit is enforced" {
   let result = @moonconneg.parse_media_type_with_limits(
     "text/plain;a=1;b=2",

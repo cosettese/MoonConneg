@@ -13,6 +13,8 @@ The current core provides:
 
 - concrete `Content-Type` parsing;
 - ordered `Accept` media-range parsing;
+- RFC 9110 list tolerance that ignores empty preference members while counting
+  them against configurable resource limits;
 - strict q-values represented as integer thousandths;
 - wildcard validation;
 - media parameters and accept-extension separation;

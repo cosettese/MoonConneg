@@ -9,6 +9,17 @@ test "parses ordered encoding preferences and exact qvalues" {
 }
 
 ///|
+test "Accept-Encoding ignores empty list members" {
+  let parsed = @moonconneg.parse_accept_encoding(", gzip, , br,").unwrap()
+  assert_eq(parsed.length(), 2)
+  assert_eq(parsed[0].coding, "gzip")
+  assert_eq(parsed[0].order, 0)
+  assert_eq(parsed[1].coding, "br")
+  assert_eq(parsed[1].order, 1)
+  assert_eq(@moonconneg.parse_accept_encoding(",,,").unwrap(), [])
+}
+
+///|
 test "rejects invalid encoding parameters and duplicate quality" {
   assert_true(
     @moonconneg.parse_accept_encoding("gzip;level=1")

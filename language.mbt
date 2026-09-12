@@ -70,12 +70,25 @@ pub fn parse_accept_language_with_limits(
   }
   let preferences = []
   let mut order = 0
+  let mut member_count = 1
+  match check_list_limit(member_count, limits, "Accept-Language items") {
+    Err(error) => return Err(error)
+    Ok(_) => ()
+  }
   while true {
-    match check_list_limit(order + 1, limits, "Accept-Language items") {
-      Err(error) => return Err(error)
-      Ok(_) => ()
-    }
     cursor.skip_ows()
+    if cursor.end() {
+      break
+    }
+    if cursor.peek() == Some(',') {
+      cursor.pos = cursor.pos + 1
+      member_count = member_count + 1
+      match check_list_limit(member_count, limits, "Accept-Language items") {
+        Err(error) => return Err(error)
+        Ok(_) => ()
+      }
+      continue
+    }
     let range_offset = cursor.pos
     let range = match cursor.token("basic language range") {
       Ok(value) => value.to_lower()
@@ -125,13 +138,11 @@ pub fn parse_accept_language_with_limits(
     if cursor.end() {
       break
     }
-    match cursor.take_char(',', ", or end of input") {
-      Ok(_) => ()
-      Err(error) => return Err(error)
-    }
-    cursor.skip_ows()
-    if cursor.end() {
-      return Err(UnexpectedEnd(cursor.pos, "language range after comma"))
+    match cursor.peek() {
+      Some(',') => ()
+      Some(ch) =>
+        return Err(UnexpectedCharacter(cursor.pos, ch, ", or end of input"))
+      None => ()
     }
   }
   Ok(preferences)

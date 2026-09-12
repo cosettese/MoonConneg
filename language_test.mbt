@@ -12,6 +12,17 @@ test "parses and normalizes ordered language preferences" {
 }
 
 ///|
+test "Accept-Language ignores empty list members" {
+  let parsed = @moonconneg.parse_accept_language(", en-US, , fr,").unwrap()
+  assert_eq(parsed.length(), 2)
+  assert_eq(parsed[0].range, "en-us")
+  assert_eq(parsed[0].order, 0)
+  assert_eq(parsed[1].range, "fr")
+  assert_eq(parsed[1].order, 1)
+  assert_eq(@moonconneg.parse_accept_language(",,,").unwrap(), [])
+}
+
+///|
 test "rejects invalid language ranges and parameters" {
   assert_true(
     @moonconneg.parse_accept_language("en-abcdefghi")

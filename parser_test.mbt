@@ -44,6 +44,19 @@ test "empty accept means any representation" {
 }
 
 ///|
+test "Accept ignores empty list members and preserves preference order" {
+  let parsed = @moonconneg.parse_accept(", text/plain, , application/json,").unwrap()
+  assert_eq(parsed.length(), 2)
+  assert_eq(parsed[0].type_, "text")
+  assert_eq(parsed[0].order, 0)
+  assert_eq(parsed[1].type_, "application")
+  assert_eq(parsed[1].order, 1)
+  let only_empty = @moonconneg.parse_accept(",,,").unwrap()
+  assert_eq(only_empty.length(), 1)
+  assert_eq(only_empty[0].type_, "*")
+}
+
+///|
 test "quoted commas stay inside one parameter" {
   let parsed = @moonconneg.parse_accept("text/plain;profile=\"a,b\";q=0.5")
   guard parsed is Ok(ranges) else { fail("quoted comma should parse") }

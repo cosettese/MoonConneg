@@ -17,6 +17,8 @@ framework adapters stay outside the core package.
 6. An absent `Accept-Encoding` field and a present but empty field remain
    distinct: absence accepts every coding, while an empty value accepts only
    `identity`.
+7. Empty members in HTTP list fields are ignored without changing the order of
+   valid preferences, but still count toward the list resource limit.
 
 ## Selection pipeline
 
@@ -72,3 +74,5 @@ Limit-aware entry points reject excess work before allocating or scoring the
 next unit. Callers can supply tighter values for exposed services or use the
 unlimited preset for controlled tests. Limits count decoded MoonBit characters,
 not transport bytes; HTTP adapters remain responsible for wire-level limits.
+Ignored empty list members count toward `max_list_items`, bounding tolerant
+parsing as required by RFC 9110's denial-of-service guidance.
